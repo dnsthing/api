@@ -63,6 +63,23 @@ void startDaemon() {
 	if (!ok) {
 		die("error: %s\n", error.message);
 	}
+
+	// Get a handle on the "admin" database.
+	database = mongoc_client_get_database(client, "admin");
+	if (!database) {
+		die("Failed to get a MongoDB database handle.\n");
+	}
+	// Ping the database.
+	command = BCON_NEW("ping", BCON_INT32(1));
+	ok = mongoc_database_command_simple(
+		database, command, NULL, &reply, &error
+	);
+	if (!ok) {
+		die("error: %s\n", error.message);
+	}
+	bson_destroy(&reply);
+	
+	die("Pinged your deployment. You successfully connected to MongoDB!\n");
 }
 
 void showHelp() {
