@@ -1,7 +1,13 @@
 #dnsthing
 
-CC = cc
+# version of dnsthing
+VER             = 0.0.1
 
+# compiler type and flags
+CC              = gcc
+CFLAGS          = -std=c99 -pedantic -Wall -DVER=\"${VER}\"
+
+# targets
 TARGET = dnsthing
 OBJ = api.o dnsthing.o
 
