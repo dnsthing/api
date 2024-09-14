@@ -5,7 +5,7 @@ VER             = 0.0.1
 
 # compiler type and flags
 CC              = gcc
-CFLAGS          = -std=c99 -pedantic -Wall -DVER=\"${VER}\"
+CFLAGS          = -I/usr/include -L/usr/lib -std=c99 -pedantic -Wall -DVER=\"${VER}\"
 
 # targets
 TARGET = dnsthing
