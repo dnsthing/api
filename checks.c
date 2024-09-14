@@ -80,6 +80,7 @@ void generateDnsmasqViaWildcard(const char *blocklist_file, const char *dnsmasq_
 	FILE *dnsmasq_fp = fopen(dnsmasq_file, "w");
 	if (!blocklist_fp) { die("Error opening blocklist file"); }
 	if (!dnsmasq_fp) { fclose(blocklist_fp); die("Error opening dnsmasq file"); }
+	char line[256];
 	while (fgets(line, sizeof(line), blocklist_fp)) {
 		if (line[0] == '\n') { continue; }
 		line[strcspn(line, "\n")] = '\0';
