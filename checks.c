@@ -1,41 +1,63 @@
 #include "util.h"
 
-void modify_line(char *line, const char *search, const char *replacement) {
-	char *pos;
-	if ((pos = strstr(line, search)) != NULL) {
-		// Replace the search string with the replacement string
-		int len_search = strlen(search);
-		int len_replacement = strlen(replacement);
-		memmove(pos + len_replacement, pos + len_search, strlen(pos + len_search) + 1);
-		memcpy(pos, replacement, len_replacement);
-	}
+// Callback function to write data to a file
+size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+	FILE *fp = (FILE *)userp;
+	size_t written = fwrite(contents, size, nmemb, fp);
+	return written;
 }
 
-void generateDnsmasq() {
-	FILE *input_file = fopen("dnsmasq.conf", "r");
-	FILE *output_file = fopen("dnsmasq.conf.tmp", "w");
-	
-	if (input_file == NULL || output_file == NULL) {
-		die("Error opening file");
-	}
-	
-	char buffer[BUFFER_SIZE];
-	while (fgets(buffer, BUFFER_SIZE, input_file)) {
-		// Modify lines containing "server="
-		modify_line(buffer, "server=8.8.8.8", "server=1.1.1.1"); // Example replacement
-		fputs(buffer, output_file);
+// Function to download a file from a URL and save it locally
+void downloadFile(const char *url, const char *filename) {
+	CURL *curl;
+	CURLcode res;
+	FILE *fp;
+
+	// Initialize libcurl
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	curl = curl_easy_init();
+	if (!curl) {
+		fprintf(stderr, "Failed to initialize curl\n");
+		curl_global_cleanup();
+		return;
 	}
 
-	fclose(input_file);
-	fclose(output_file);
-
-	// Replace the original file with the modified file
-	if (remove("dnsmasq.conf") != 0) {
-		die("Error deleting the original file");
-	}
-	if (rename("dnsmasq.conf.tmp", "dnsmasq.conf") != 0) {
-		die("Error renaming the temporary file");
+	// Open file to write
+	fp = fopen(filename, "wb");
+	if (!fp) {
+		perror("fopen");
+		curl_easy_cleanup(curl);
+		curl_global_cleanup();
+		return;
 	}
 
-	die("Configuration file updated successfully.\n");
+	// Set URL
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+
+	// Set write callback function
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+
+	// Set file pointer to the callback function
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+
+	// Perform the request
+	res = curl_easy_perform(curl);
+
+	// Check for errors
+	if(res != CURLE_OK) {
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		fclose(fp);
+		curl_easy_cleanup(curl);
+		curl_global_cleanup();
+		return;
+	}
+
+	// Close file
+	fclose(fp);
+
+	// Cleanup
+	curl_easy_cleanup(curl);
+	curl_global_cleanup();
+
+	return;
 }

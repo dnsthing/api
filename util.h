@@ -15,11 +15,12 @@
 /* 3rd party libraries */
 #include <mongoc/mongoc.h>
 #include <bson/bson.h>
+#include <curl/curl.h>
 
-void generateDnsmasq();
-void modify_line(char *line, const char *search, const char *replacement);
-void viewDaemon();
-void dbCleanUp(mongoc_database_t *database, bson_t *command, mongoc_server_api_t *api, mongoc_client_t *client);
 int main(int argc, char *argv[]);
-void showHelp();
+size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp);
+void dbCleanUp(mongoc_database_t *database, bson_t *command, mongoc_server_api_t *api, mongoc_client_t *client);
 void die(const char *fmt, ...);
+void downloadFile(const char *url, const char *filename);
+void showHelp();
+void viewDaemon();
