@@ -75,3 +75,18 @@ void generateDnsmasqViaBlocklist(const char *blocklist_file, const char *dnsmasq
 	fclose(dnsmasq_fp);
 }
 
+void generateDnsmasqViaWildcard(const char *blocklist_file, const char *dnsmasq_file) {
+	FILE *blocklist_fp = fopen(blocklist_file, "r");
+	FILE *dnsmasq_fp = fopen(dnsmasq_file, "w");
+	if (!blocklist_fp) { die("Error opening blocklist file"); }
+	if (!dnsmasq_fp) { fclose(blocklist_fp); die("Error opening dnsmasq file"); }
+	while (fgets(line, sizeof(line), blocklist_fp)) {
+		if (line[0] == '\n') { continue; }
+		line[strcspn(line, "\n")] = '\0';
+		char *domain = line;
+		if (domain[0] == '*') { domain++; fprintf(dnsmasq_fp, "address=/%s/0.0.0.0\n", domain);
+		} else { fprintf(dnsmasq_fp, "address=/%s/0.0.0.0\n", domain); }
+	}
+	fclose(blocklist_fp);
+	fclose(dnsmasq_fp);
+}

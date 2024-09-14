@@ -24,5 +24,6 @@ void die(const char *fmt, ...);
 void downloadFile(const char *url, const char *filename);
 void generateDnsmasqViaBlocklist(const char *blocklist_file, const char *dnsmasq_file);
 void generateDnsmasqViaHosts(const char *hosts_file, const char *dnsmasq_file);
+void generateDnsmasqViaWildcard(const char *blocklist_file, const char *dnsmasq_file);
 void showHelp();
 void viewDaemon();
