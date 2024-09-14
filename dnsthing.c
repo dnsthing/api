@@ -96,15 +96,15 @@ void viewDaemon() {
 
 void showHelp() {
 	die(
-			"Usage: dnsthing [options]\n"
-			"Example: dnsthing daemon start\n\n"
-			"  uninstall	- uninstall dnsthing from the current machine\n"
-			"  status	- check the current status of the daemon\n"
-			"  adlist	- manage currently used adlists\n"
-			"  domain	- manage currently blocked domains (seperate from the adlist)\n"
-			"  exceptions	- manage exceptions to domains posed from the adlist\n"
-			"  daemon	- view the current stateus of the daemon\n"
-			);
+		"Usage: dnsthing [options]\n"
+		"Example: dnsthing daemon start\n\n"
+		"  uninstall	- uninstall dnsthing from the current machine\n"
+		"  status	- check the current status of the daemon\n"
+		"  adlist	- manage currently used adlists\n"
+		"  domain	- manage currently blocked domains (seperate from the adlist)\n"
+		"  exceptions	- manage exceptions to domains posed from the adlist\n"
+		"  daemon	- view the current stateus of the daemon\n"
+	);
 }
 
 int main(int argc, char *argv[])
