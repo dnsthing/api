@@ -44,8 +44,25 @@ void startDaemon() {
 	bson_t reply = BSON_INITIALIZER;
 	int rc = 0;
 	bool ok = true;
+	
 	// Initialize the MongoDB C Driver.
 	mongoc_init();
+
+	client = mongoc_client_new("mongodb://127.0.0.1:27017");
+	if (!client) {
+		die("Failed to create a MongoDB client.\n");
+	}
+	
+	// Set the version of the Stable API on the client.
+	api = mongoc_server_api_new(MONGOC_SERVER_API_V1);
+	if (!api) {
+		die("Failed to create a MongoDB server API.\n");
+	}
+	
+	ok = mongoc_client_set_server_api(client, api, &error);
+	if (!ok) {
+		die("error: %s\n", error.message);
+	}
 }
 
 void showHelp() {
