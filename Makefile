@@ -9,7 +9,7 @@ CFLAGS          = -std=c99 -pedantic -Wall -DVER=\"${VER}\"
 
 # targets
 TARGET = dnsthing
-OBJ = api.o dnsthing.o
+OBJ = dnsthing.o
 
 all: $(TARGET)
 
