@@ -43,7 +43,7 @@ void die(const char *fmt, ...)
 }
 
 /* primary funcs */
-void startDaemon() {
+void viewDaemon() {
 	mongoc_client_t *client = NULL;
 	bson_error_t error = {0};
 	mongoc_server_api_t *api = NULL;
@@ -103,7 +103,7 @@ void showHelp() {
 			"  adlist	- manage currently used adlists\n"
 			"  domain	- manage currently blocked domains (seperate from the adlist)\n"
 			"  exceptions	- manage exceptions to domains posed from the adlist\n"
-			"  daemon	- manage the current stateus of the daemon\n"
+			"  daemon	- view the current stateus of the daemon\n"
 			);
 }
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 	else if (argc >= 2 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))
 		showHelp();
 	else if (argc >= 2 && strcmp(argv[1], "daemon") == 0)
-		startDaemon();	
+		viewDaemon();	
 	else if (argc != 1)
 		die("usage");
 }
