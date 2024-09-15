@@ -42,4 +42,5 @@ void main(int argc, char *argv[]);
 void manageAdlist(int argc, char *argv[]);
 void showHelp();
 void viewAdlist(mongoc_client_t *client, mongoc_uri_t *uri);
+void bruh();
 void viewDaemon(int argc, char *argv[]);

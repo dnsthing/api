@@ -131,9 +131,10 @@ void manageAdlist(int argc, char *argv[]) { /* welcome to "else if" hell */
 /* please help */
 void main(int argc, char *argv[]) {
 	/* extra arguments/settings */
-	if (argc >= 2 && (strcmp(argv[1], "version") == 0))
+	if (argc >= 2 && (strcmp(argv[1], "version") == 0)) {
+		bruh();
 		die("dnsthing-%s", VER); /* ver is actually defined in the makefile. ignore whatever error is being told here */
-	else if (argc == 1 || argc >= 2 && (strcmp(argv[1], "help") == 0))
+	} else if (argc == 1 || argc >= 2 && (strcmp(argv[1], "help") == 0))
 		showHelp();
 	else if (argc >= 2 && strcmp(argv[1], "download") == 0)
 		downloadListsAndUpdate();

@@ -19,7 +19,7 @@ CFLAGS		= $(INC) -std=c99 -pedantic -Wall -DVER=\"${VER}\"
 
 # targets
 TARGET = dnsthing
-OBJ = checks.o database.o dnsthing.o util.o
+OBJ = checks.o database.o dnsthing.o util.o bruh.o
 
 all: $(TARGET)
 
