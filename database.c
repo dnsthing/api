@@ -36,22 +36,31 @@ void createDatabase(mongoc_client_t *client) {
 	mongoc_collection_destroy(collection);
 }
 
-
-void listDatabaseEntries(mongoc_client_t *client) {
+char *listDatabaseEntries(mongoc_client_t *client) {
 	mongoc_collection_t *collection;
 	mongoc_cursor_t *cursor;
 	const bson_t *doc;
 	bson_error_t error;
+	bson_t *bson_result = bson_new();
 	collection = mongoc_client_get_collection(client, DATABASE_NAME, COLLECTION_NAME);
 	cursor = mongoc_collection_find_with_opts(collection, bson_new(), NULL, NULL);
 	while (mongoc_cursor_next(cursor, &doc)) {
 		char *str = bson_as_canonical_extended_json(doc, NULL);
-		printf("%s\n", str);
+		bson_append_utf8(bson_result, "entry", -1, str, -1);
 		bson_free(str);
 	}
-	if (mongoc_cursor_error(cursor, &error)) { die("Cursor error: %s\n", error.message); }
+	if (mongoc_cursor_error(cursor, &error)) { 
+		bson_destroy(bson_result);
+		mongoc_cursor_destroy(cursor);
+		mongoc_collection_destroy(collection);
+		fprintf(stderr, "Cursor error: %s\n", error.message);
+		return NULL;
+	}
+	char *json_string = bson_as_json(bson_result, NULL);
+	bson_destroy(bson_result);
 	mongoc_cursor_destroy(cursor);
 	mongoc_collection_destroy(collection);
+	return json_string;
 }
 
 void addDatabaseEntry(mongoc_client_t *client, const char *random_string, const char *adlist_url, const char *adlist_name) {

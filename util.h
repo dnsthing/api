@@ -36,7 +36,7 @@ void generateDnsmasqViaBlocklist(const char *blocklist_file, const char *dnsmasq
 void generateDnsmasqViaHosts(const char *hosts_file, const char *dnsmasq_file);
 void generateDnsmasqViaWildcard(const char *blocklist_file, const char *dnsmasq_file);
 void generateRandomString(char *str, size_t length);
-void listDatabaseEntries(mongoc_client_t *client);
+char *listDatabaseEntries(mongoc_client_t *client);
 void main(int argc, char *argv[]);
 void manageAdlist(int argc, char *argv[]);
 void showHelp();

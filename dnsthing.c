@@ -4,11 +4,28 @@ void showHelp() {
 	die(
 		"Usage: dnsthing [options]\n"
 		"Example: dnsthing daemon\n\n"
+		"  download	- download and setup the adlists\n"
 		"  version	- print the version of this software\n"
 		"  help		- view this menu\n"
 		"  adlist	- manage currently used adlists\n"
 		"  daemon	- view the current stateus of the daemon\n"
 	);
+}
+
+void downloadLists() {
+	mongoc_client_t *client;
+	mongoc_uri_t *uri;
+	mongoc_init();
+	uri = mongoc_uri_new_with_error("mongodb://localhost:27017", NULL);
+	client = mongoc_client_new_from_uri(uri);
+
+	const char *jsonEntries = listDatabaseEntries(client);
+        
+
+
+	mongoc_client_destroy(client);
+        mongoc_uri_destroy(uri);
+        mongoc_cleanup();
 }
 
 void addAdlist(int argc, char *argv[], mongoc_client_t *client, mongoc_uri_t *uri) {
@@ -33,7 +50,7 @@ void delAdlist(int argc, char *argv[], mongoc_client_t *client, mongoc_uri_t *ur
 }
 
 void viewAdlist(mongoc_client_t *client, mongoc_uri_t *uri) {
-	listDatabaseEntries(client);	
+	printf("%s\n",listDatabaseEntries(client));	
 	mongoc_client_destroy(client);
 	mongoc_uri_destroy(uri);
 	mongoc_cleanup();
@@ -74,6 +91,8 @@ void main(int argc, char *argv[]) {
 		die("dnsthing-%s", VER); /* ver is actually defined in the makefile. ignore whatever error is being told here */
 	else if (argc == 1 || argc >= 2 && (strcmp(argv[1], "help") == 0))
 		showHelp();
+	else if (argc >= 2 && strcmp(argv[1], "download") == 0)
+		downloadLists();
 	else if (argc >= 2 && strcmp(argv[1], "daemon") == 0)
 		viewDaemon(argc - 1, argv + 1);
 	else if (argc >= 2 && strcmp(argv[1], "adlist") == 0)
