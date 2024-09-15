@@ -4,22 +4,38 @@ void createDatabase(mongoc_client_t *client) {
 	mongoc_collection_t *collection;
 	bson_error_t error;
 	bson_t *doc;
+	bson_t *filter;
+
 	collection = mongoc_client_get_collection(client, DATABASE_NAME, COLLECTION_NAME);
+	if (!collection) {
+		fprintf(stderr, "Failed to get collection\n");
+		return;
+	}
+
 	doc = bson_new();
-	bool inserted = false;
-	
+	filter = bson_new();
+
 	bson_append_utf8(doc, "info", -1, "This document is to ensure the collection exists", -1);
-	
+
 	if (mongoc_collection_insert_one(collection, doc, NULL, NULL, &error)) {
 		printf("Document inserted successfully.\n");
-		inserted = true;
+
+		bson_append_utf8(filter, "info", -1, "This document is to ensure the collection exists", -1);
+
+		if (mongoc_collection_delete_one(collection, filter, NULL, NULL, &error)) {
+			printf("Document deleted successfully.\n");
+		} else {
+			fprintf(stderr, "Failed to delete document: %s\n", error.message);
+		}
 	} else {
 		fprintf(stderr, "Failed to insert document: %s\n", error.message);
 	}
 
 	bson_destroy(doc);
+	bson_destroy(filter);
 	mongoc_collection_destroy(collection);
 }
+
 
 void listDatabaseEntries(mongoc_client_t *client) {
 	mongoc_collection_t *collection;
@@ -38,23 +54,20 @@ void listDatabaseEntries(mongoc_client_t *client) {
 	mongoc_collection_destroy(collection);
 }
 
-
 void addDatabaseEntry(mongoc_client_t *client, const char *random_string, const char *adlist_url, const char *adlist_name) {
 	mongoc_collection_t *collection;
 	bson_error_t error;
 	bson_t *doc;
 	time_t now;
-	struct tm *tm_info;
-	char time_buffer[26];
+	char timestamp_str[21];
 	collection = mongoc_client_get_collection(client, DATABASE_NAME, COLLECTION_NAME);
-	time(&now);
-	tm_info = localtime(&now);
-	strftime(time_buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	now = time(NULL);
+	snprintf(timestamp_str, sizeof(timestamp_str), "%ld", (long)now);
 	doc = bson_new();
 	bson_append_utf8(doc, "random_string", -1, random_string, -1);
 	bson_append_utf8(doc, "adlist_url", -1, adlist_url, -1);
 	bson_append_utf8(doc, "adlist_name", -1, adlist_name, -1);
-	bson_append_utf8(doc, "creation_time", -1, time_buffer, -1);
+	bson_append_utf8(doc, "creation_time", -1, timestamp_str, -1);
 	if (!mongoc_collection_insert_one(collection, doc, NULL, NULL, &error)) { die("Failed to insert document: %s\n", error.message); }
 	bson_destroy(doc);
 	mongoc_collection_destroy(collection);
