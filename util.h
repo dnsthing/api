@@ -33,3 +33,8 @@ void manageAdlist(int argc, char *argv[]);
 void showHelp();
 void viewAdlist();
 void viewDaemon();
+
+void deleteDatabaseEntry(mongoc_client_t *client, const char *random_string);
+void addDatabaseEntry(mongoc_client_t *client, const char *random_string, const char *adlist_url, const char *adlist_name);
+void listDatabaseEntries(mongoc_client_t *client);
+void createDatabase(mongoc_client_t *client);
