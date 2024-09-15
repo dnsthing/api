@@ -14,22 +14,24 @@ void showHelp() {
 	);
 }
 void addAdlist() {
-	die("bruh");
+	if (argc >= 
 }
 
 void delAdlist() {
-	die("bruh2");
+
 }
 
 void viewAdlist() {
-	die("bruh3");
+	
 }
 
-void manageAdlist(int argc, char *argv[]) {
+void manageAdlist(int argc, char *argv[]) { /* welcome to "else if" hell */
+	
+	
 	if (argc >= 2 && (strcmp(argv[1], "add") == 0))
-		addAdlist();
+		addAdlist(argc - 1, argv + 1);
 	else if (argc >= 2 && (strcmp(argv[1], "del")) == 0)
-		delAdlist();
+		delAdlist(argc - 1, argv + 1);
 	else if (argc >= 2 && (strcmp(argv[1], "list")) == 0)
 		viewAdlist();
 	else if (argc == 1 || argc >= 2 ) {
@@ -43,8 +45,7 @@ void manageAdlist(int argc, char *argv[]) {
 	}
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	/* extra arguments/settings */
 	if (argc >= 2 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0))
 		die("dnsthing-%s", VER); /* ver is actually defined in the makefile. ignore whatever error is being told here */

@@ -1,4 +1,6 @@
 #define BUFFER_SIZE 1024
+#define DATABASE_NAME "dnsthing"
+#define COLLECTION_NAME "adlistcollection"
 
 /* standard gnu libraries */
 #include <errno.h>
