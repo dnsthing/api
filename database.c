@@ -12,7 +12,7 @@ void createDatabase(mongoc_client_t *client) {
 	mongoc_collection_destroy(collection);
 }
 
-void list_entries(mongoc_client_t *client) {
+void listDatabaseEntries(mongoc_client_t *client) {
 	mongoc_collection_t *collection;
 	mongoc_cursor_t *cursor;
 	const bson_t *doc;
@@ -30,7 +30,7 @@ void list_entries(mongoc_client_t *client) {
 }
 
 
-void add_entry(mongoc_client_t *client, const char *random_string, const char *adlist_url, const char *adlist_name) {
+void addDatabaseEntry(mongoc_client_t *client, const char *random_string, const char *adlist_url, const char *adlist_name) {
 	mongoc_collection_t *collection;
 	bson_error_t error;
 	bson_t *doc;
@@ -51,7 +51,7 @@ void add_entry(mongoc_client_t *client, const char *random_string, const char *a
 	mongoc_collection_destroy(collection);
 }
 
-void delete_entry(mongoc_client_t *client, const char *random_string) {
+void deleteDatabaseEntry(mongoc_client_t *client, const char *random_string) {
 	mongoc_collection_t *collection;
 	bson_error_t error;
 	bson_t *filter;
@@ -62,7 +62,6 @@ void delete_entry(mongoc_client_t *client, const char *random_string) {
 	bson_destroy(filter);
 	mongoc_collection_destroy(collection);
 }
-
 
 void dbCleanUp(mongoc_database_t *database, bson_t *command, mongoc_server_api_t *api, mongoc_client_t *client) {
 	bson_destroy(command);
