@@ -16,72 +16,57 @@ void downloadListsAndUpdate() {
 	mongoc_client_t *client;
 	const char *adlistEntries;
 	json_object *json_obj, *json_entry_string, *json_entry;
-	size_t i = 0;
 	const char *random_string, *adlist_url, *adlist_name;
 	char filename[100];
-	char entry_key[10]; // To store keys like "entry_1", "entry_2", etc.
+	int entry_found;
+
 	mongoc_init();
 	client = mongoc_client_new("mongodb://localhost:27017");
 	if (!client) {
 		fprintf(stderr, "Failed to create MongoDB client.\n");
 		return;
 	}
+
 	adlistEntries = listDatabaseEntries(client);
 
-	// Parse the JSON string (first layer)
 	json_obj = json_tokener_parse(adlistEntries);
 
-	// Check if it's a valid JSON object
 	if (json_obj == NULL) {
 		fprintf(stderr, "Failed to parse JSON: %s\n", adlistEntries);
 		return;
 	}
 
-	// Loop over each "entry" in the object
 	while (1) {
-		snprintf(entry_key, sizeof(entry_key), "entry_%zu", i);  // Generate keys like "entry_0", "entry_1", etc.
-
-		// Try to get the entry string by key
-		if (!json_object_object_get_ex(json_obj, "entry", &json_entry_string)) {
-			// If no more entries, break the loop
+		entry_found = json_object_object_get_ex(json_obj, "entry", &json_entry_string);
+		if (!entry_found) {
 			break;
 		}
 
-		// The "entry" is a string, so we need to parse it as a JSON object
 		json_entry = json_tokener_parse(json_object_get_string(json_entry_string));
 		if (json_entry == NULL) {
 			fprintf(stderr, "Failed to parse the 'entry' string as JSON.\n");
-			json_object_put(json_obj);  // Free the original JSON object
+			json_object_put(json_obj);
 			return;
 		}
 
-		// Now process the parsed JSON object
 		random_string = json_object_get_string(json_object_object_get(json_entry, "random_string"));
 		adlist_url = json_object_get_string(json_object_object_get(json_entry, "adlist_url"));
 		adlist_name = json_object_get_string(json_object_object_get(json_entry, "adlist_name"));
 
-		// 2. Delete the database entry
 		deleteDatabaseEntry(client, random_string);
 
-		// 3. Create a filename in the format "random_string.conf"
 		snprintf(filename, sizeof(filename), "%s.conf", random_string);
 
-		// 4. Download the file from adlist_url and save it as random_string.conf
-		printf("Downloading %s\n", filename);
 		downloadFile(adlist_url, filename);
-		printf("Success!");
 
-		// 5. Re-add the entry to the database
-		addDatabaseEntry(client, random_string, adlist_url, adlist_name);
+		json_object_object_del(json_obj, "entry");
 
-		// Increment the index for the next iteration
-		i++;
+		json_object_put(json_entry);
 	}
 
-	// Clean up
-	json_object_put(json_obj);	// Free the outer JSON object
-	mongoc_client_destroy(client);  // Destroy MongoDB client
-	mongoc_cleanup();  // Cleanup MongoDB resources
+	json_object_put(json_obj);
+	mongoc_client_destroy(client);
+	mongoc_cleanup();
 }
 
 
