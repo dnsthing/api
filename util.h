@@ -20,10 +20,14 @@
 int main(int argc, char *argv[]);
 size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp);
 void dbCleanUp(mongoc_database_t *database, bson_t *command, mongoc_server_api_t *api, mongoc_client_t *client);
+void addAdlist();
+void delAdlist();
 void die(const char *fmt, ...);
 void downloadFile(const char *url, const char *filename);
 void generateDnsmasqViaBlocklist(const char *blocklist_file, const char *dnsmasq_file);
 void generateDnsmasqViaHosts(const char *hosts_file, const char *dnsmasq_file);
 void generateDnsmasqViaWildcard(const char *blocklist_file, const char *dnsmasq_file);
+void manageAdlist(int argc, char *argv[]);
 void showHelp();
+void viewAdlist();
 void viewDaemon();

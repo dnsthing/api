@@ -13,9 +13,26 @@ void showHelp() {
 		"  daemon	- view the current stateus of the daemon\n"
 	);
 }
-void addAdlist(int argc, char *argv[]) {
-	switch(argv[1])
-	default:
+void addAdlist() {
+	die("bruh");
+}
+
+void delAdlist() {
+	die("bruh2");
+}
+
+void viewAdlist() {
+	die("bruh3");
+}
+
+void manageAdlist(int argc, char *argv[]) {
+	if (argc >= 2 && (strcmp(argv[1], "add") == 0))
+		addAdlist();
+	else if (argc >= 2 && (strcmp(argv[1], "del")) == 0)
+		delAdlist();
+	else if (argc >= 2 && (strcmp(argv[1], "list")) == 0)
+		viewAdlist();
+	else if (argc == 1 || argc >= 2 ) {
 		die(
 			"Usage: dnsthing adlist [options]\n"
 			"Example: dnsthing adlist add https://foobar/\n"
@@ -23,6 +40,7 @@ void addAdlist(int argc, char *argv[]) {
 			"  del		- delete an adlist from the database\n"
 			"  list		- list current adlists on the system"
 		);
+	}
 }
 
 int main(int argc, char *argv[])
@@ -35,7 +53,7 @@ int main(int argc, char *argv[])
 	else if (argc >= 2 && strcmp(argv[1], "daemon") == 0)
 		viewDaemon();
 	else if (argc >= 2 && strcmp(argv[1], "adlist") == 0)
-		addAdlist(argc - 1, argv + 1);
-	else if (argc != 1)
+		manageAdlist(argc - 1, argv + 1);
+	else if (argc == 1)
 		die("usage");
 }
