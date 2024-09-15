@@ -56,17 +56,17 @@ void downloadListsAndUpdate() {
 		deleteDatabaseEntry(client, random_string);
 
 		snprintf(filename, sizeof(filename), "%s.conf", random_string);
-
+		printf("Downloading %s\n", filename);
 		downloadFile(adlist_url, filename);
-
+		printf("Downloaded %s\n", filename);
 		json_object_object_del(json_obj, "entry");
 
 		json_object_put(json_entry);
 	}
-
 	json_object_put(json_obj);
 	mongoc_client_destroy(client);
 	mongoc_cleanup();
+	die("Success!");
 }
 
 
