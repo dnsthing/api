@@ -12,6 +12,24 @@ void createDatabase(mongoc_client_t *client) {
 	mongoc_collection_destroy(collection);
 }
 
+void list_entries(mongoc_client_t *client) {
+	mongoc_collection_t *collection;
+	mongoc_cursor_t *cursor;
+	const bson_t *doc;
+	bson_error_t error;
+	collection = mongoc_client_get_collection(client, DATABASE_NAME, COLLECTION_NAME);
+	cursor = mongoc_collection_find_with_opts(collection, bson_new(), NULL, NULL);
+	while (mongoc_cursor_next(cursor, &doc)) {
+		char *str = bson_as_canonical_extended_json(doc, NULL);
+		printf("%s\n", str);
+		bson_free(str);
+	}
+	if (mongoc_cursor_error(cursor, &error)) { die(stderr, "Cursor error: %s\n", error.message); }
+	mongoc_cursor_destroy(cursor);
+	mongoc_collection_destroy(collection);
+}
+
+
 void add_entry(mongoc_client_t *client, const char *random_string, const char *adlist_url, const char *adlist_name) {
 	mongoc_collection_t *collection;
 	bson_error_t error;
