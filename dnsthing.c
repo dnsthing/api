@@ -127,6 +127,8 @@ void manageAdlist(int argc, char *argv[]) { /* welcome to "else if" hell */
 	}
 }
 
+/* today i ate dirt */
+/* please help */
 void main(int argc, char *argv[]) {
 	/* extra arguments/settings */
 	if (argc >= 2 && (strcmp(argv[1], "version") == 0))
