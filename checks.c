@@ -1,45 +1,40 @@
 #include "util.h"
 
-// Callback function to write data to a file
 size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+	size_t total_size = size * nmemb;
 	FILE *fp = (FILE *)userp;
 	size_t written = fwrite(contents, size, nmemb, fp);
 	return written;
 }
 
-// Function to download a file from a URL and save it locally
 void downloadFile(const char *url, const char *filename) {
 	CURL *curl;
-	CURLcode res;
 	FILE *fp;
-	curl_global_init(CURL_GLOBAL_DEFAULT);
+	CURLcode res;
+
 	curl = curl_easy_init();
-	if (!curl) {
-		curl_global_cleanup();
-		die("Failed to initialize curl\n");
-	}
-	fp = fopen(filename, "wb");
-	if (!fp) {
-		perror("fopen");
-		curl_easy_cleanup(curl);
-		curl_global_cleanup();
-		die("Failed to open file.");
-	}
-	curl_easy_setopt(curl, CURLOPT_URL, url);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-	res = curl_easy_perform(curl);
-	if(res != CURLE_OK) {
+	if (curl) {
+		fp = fopen(filename, "wb");
+		if (!fp) {
+			fprintf(stderr, "Failed to open file for writing\n");
+			curl_easy_cleanup(curl);
+			return;
+		}
+		
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+
+		res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		}
+
 		fclose(fp);
 		curl_easy_cleanup(curl);
-		curl_global_cleanup();
-		die("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 	}
-	fclose(fp);
-	curl_easy_cleanup(curl);
-	curl_global_cleanup();
-	return;
 }
+
 
 void generateDnsmasqViaHosts(const char *hosts_file, const char *dnsmasq_file) {
 	FILE *hosts_fp = fopen(hosts_file, "r");

@@ -4,13 +4,14 @@
 LIBMONGOC 	= /usr/include/libmongoc-1.0
 LIBBSON		= /usr/include/libbson-1.0
 LIBCURL		= /usr/include/curl
+LIBJSON		= /usr/include/json-c
 
 # version of dnsthing
 VER             = 0.0.1
 
 # compiler type and flags
 CC		= gcc
-INC		= -lmongoc-1.0 -lbson-1.0 -lcurl -I$(LIBCURL) -I$(LIBMONGOC) -I$(LIBBSON)
+INC		= -lmongoc-1.0 -lbson-1.0 -lcurl -ljson-c -I$(LIBJSON) -I$(LIBCURL) -I$(LIBMONGOC) -I$(LIBBSON)
 CFLAGS		= $(INC) -std=c99 -pedantic -Wall -DVER=\"${VER}\"
 
 

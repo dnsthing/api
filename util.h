@@ -17,6 +17,7 @@
 /* 3rd party libraries */
 #include <mongoc/mongoc.h>
 #include <bson/bson.h>
+#include <json-c/json.h>
 #include <curl/curl.h>
 
 size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp);
