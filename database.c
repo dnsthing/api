@@ -12,6 +12,26 @@ void createDatabase(mongoc_client_t *client) {
 	mongoc_collection_destroy(collection);
 }
 
+bool databaseExists(mongoc_client_t *client, const char *database_name) {
+	bson_error_t error;
+	bson_t *databases;
+	bson_t *doc;
+	mongoc_cursor_t *cursor;
+	bool exists = false;
+	cursor = mongoc_client_list_databases(client, NULL, NULL, &error);
+	if (!cursor) { die("Failed to list databases: %s\n", error.message); }
+	while (mongoc_cursor_next(cursor, &doc)) {
+		const char *name = bson_lookup_utf8(doc, "name");
+		if (name && strcmp(name, database_name) == 0) { exists = true; break; }
+	}
+	if (mongoc_cursor_error(cursor, &error)) {
+		fprintf(stderr, "Cursor error: %s\n", error.message);
+	}
+	mongoc_cursor_destroy(cursor);
+	return exists;
+}
+
+
 void listDatabaseEntries(mongoc_client_t *client) {
 	mongoc_collection_t *collection;
 	mongoc_cursor_t *cursor;

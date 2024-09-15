@@ -14,7 +14,7 @@ void showHelp() {
 	);
 }
 void addAdlist() {
-	if (argc >= 
+	 
 }
 
 void delAdlist() {
@@ -26,8 +26,11 @@ void viewAdlist() {
 }
 
 void manageAdlist(int argc, char *argv[]) { /* welcome to "else if" hell */
+	mongoc_client_t *client;
+	mongoc_uri_t *uri;	
 	
 	
+
 	if (argc >= 2 && (strcmp(argv[1], "add") == 0))
 		addAdlist(argc - 1, argv + 1);
 	else if (argc >= 2 && (strcmp(argv[1], "del")) == 0)
