@@ -6,8 +6,17 @@ void createDatabase(mongoc_client_t *client) {
 	bson_t *doc;
 	collection = mongoc_client_get_collection(client, DATABASE_NAME, COLLECTION_NAME);
 	doc = bson_new();
+	bool inserted = false;
+	
 	bson_append_utf8(doc, "info", -1, "This document is to ensure the collection exists", -1);
-	if (!mongoc_collection_insert_one(collection, doc, NULL, NULL, &error)) { die("Failed to create collection: %s\n", error.message); }
+	
+	if (mongoc_collection_insert_one(collection, doc, NULL, NULL, &error)) {
+		printf("Document inserted successfully.\n");
+		inserted = true;
+	} else {
+		fprintf(stderr, "Failed to insert document: %s\n", error.message);
+	}
+
 	bson_destroy(doc);
 	mongoc_collection_destroy(collection);
 }
@@ -71,53 +80,50 @@ void dbCleanUp(mongoc_database_t *database, bson_t *command, mongoc_server_api_t
 	mongoc_cleanup();
 }
 
-void viewDaemon() {
-	mongoc_client_t *client = NULL;
-	bson_error_t error = {0};
-	mongoc_server_api_t *api = NULL;
-	mongoc_database_t *database = NULL;
-	bson_t *command = NULL;
-	bson_t reply = BSON_INITIALIZER;
-	bool ok = true;
+void cleanDocuments(mongoc_client_t *client) {
+	mongoc_collection_t *collection;
+	bson_error_t error;
+	bson_t *empty_filter;
+	collection = mongoc_client_get_collection(client, DATABASE_NAME, COLLECTION_NAME);
+	empty_filter = bson_new();
+	if (mongoc_collection_delete_many(collection, empty_filter, NULL, NULL, &error)) { printf("All documents deleted successfully.\n");
+	} else { die("Failed to delete documents: %s\n", error.message); }
+	bson_destroy(empty_filter);
+	mongoc_collection_destroy(collection);
+}
+
+void cleanCollection(mongoc_client_t *client) {
+	mongoc_collection_t *collection;
+	bson_error_t error;
+	collection = mongoc_client_get_collection(client, DATABASE_NAME, COLLECTION_NAME);
+	if (mongoc_collection_drop(collection, &error)) { printf("Collection dropped successfully.\n");
+	} else { die("Failed to drop collection: %s\n", error.message); }
+	mongoc_collection_destroy(collection);
+}
+
+void viewDaemon(int argc, char *argv[]) {
+	mongoc_client_t *client;
+	mongoc_uri_t *uri;
 	
-	// Initialize the MongoDB C Driver.
 	mongoc_init();
 
-	client = mongoc_client_new("mongodb://127.0.0.1:27017");
-	if (!client) {
-		dbCleanUp(database, command, api, client);
-		die("Failed to create a MongoDB client.\n");
+	uri = mongoc_uri_new_with_error("mongodb://localhost:27017", NULL);
+	client = mongoc_client_new_from_uri(uri);
+
+	if (argc >= 2 && (strcmp(argv[1], "clean") == 0)) {
+		cleanDocuments(client);
+		cleanCollection(client);
+
+		mongoc_client_destroy(client);
+		mongoc_uri_destroy(uri);
+		mongoc_cleanup();
+		die("Database has been cleaned.");
 	}
 
-	// Set the version of the Stable API on the client.
-	api = mongoc_server_api_new(MONGOC_SERVER_API_V1);
-	if (!api) {
-		dbCleanUp(database, command, api, client);
-		die("Failed to create a MongoDB server API.\n");
-	}
-	
-	ok = mongoc_client_set_server_api(client, api, &error);
-	if (!ok) {
-		dbCleanUp(database, command, api, client);
-		die("error: %s\n", error.message);
-	}
+	createDatabase(client);
+	listDatabaseEntries(client);
 
-	// Get a handle on the "admin" database.
-	database = mongoc_client_get_database(client, "admin");
-	if (!database) {
-		dbCleanUp(database, command, api, client);
-		die("Failed to get a MongoDB database handle.\n");
-	}
-	// Ping the database.
-	command = BCON_NEW("ping", BCON_INT32(1));
-	ok = mongoc_database_command_simple(
-		database, command, NULL, &reply, &error
-	);
-	if (!ok) {
-		dbCleanUp(database, command, api, client);
-		die("error: %s\n", error.message);
-	}
-	bson_destroy(&reply);
-	
-	die("Pinged your deployment. You successfully connected to MongoDB!\n");
+	mongoc_client_destroy(client);
+	mongoc_uri_destroy(uri);
+	mongoc_cleanup();
 }
